@@ -10,6 +10,10 @@ import java.time.Month;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toList;
+import static ru.javawebinar.topjava.util.TimeUtil.isBetweenHalfOpen;
+
 public class MealsUtil {
     public static void main(String[] args) {
         List<Meal> meals = Arrays.asList(
