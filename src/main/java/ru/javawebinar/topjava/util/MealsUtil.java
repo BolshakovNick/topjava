@@ -21,7 +21,7 @@ public class MealsUtil {
                 new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 13, 0), "Обед", 500),
                 new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 20, 0), "Ужин", 410)
         );
-
+        System.out.println(filteredByCycles(meals, LocalTime.of(7, 0), LocalTime.of(12, 0), 2000));
         System.out.println(filteredByStreams(meals, LocalTime.of(7, 0), LocalTime.of(12, 0), 2000));
     }
 
@@ -33,5 +33,23 @@ public class MealsUtil {
                 .map(meal -> new MealTo(meal.getDateTime(), meal.getDescription(), meal.getCalories(),
                         caloriesOnADay.get(meal.getDateTime().toLocalDate()) > caloriesPerDay))
                 .collect(Collectors.toList());
+    }
+
+    public static List<MealTo> filteredByCycles(List<Meal> meals, LocalTime startTime, LocalTime endTime, int caloriesperday) {
+
+        final Map<LocalDate, Integer> caloriesSumPerDate = new HashMap<>();
+        meals.forEach(meal -> caloriesSumPerDate.merge(meal.getDate(), meal.getCalories(), Integer::sum));
+
+        final List<MealTo> mealsTo = new ArrayList<>();
+        meals.forEach(meal -> {
+            if (TimeUtil.isBetweenHalfOpen(meal.getTime(), startTime, endTime)) {
+                mealsTo.add(createTo(meal, caloriesSumPerDate.get(meal.getDate()) > caloriesperday));
+            }
+        });
+        return mealsTo;
+    }
+
+    private static MealTo createTo(Meal meal, boolean excess) {
+        return new MealTo(meal.getDateTime(), meal.getDescription(), meal.getCalories(), excess);
     }
 }
