@@ -16,6 +16,12 @@ public class Meal {
         DEFAULT_MEAL = new Meal(LocalDateTime.now(), "", 0);
     }
 
+    public Meal() {
+        this.dateTime = LocalDateTime.now();
+        this.description = "";
+        this.calories = 0;
+    }
+
     public Meal(LocalDateTime dateTime, String description, int calories) {
         this.dateTime = dateTime;
         this.description = description;

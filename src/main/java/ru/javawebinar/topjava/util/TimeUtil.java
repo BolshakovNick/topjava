@@ -12,4 +12,9 @@ public class TimeUtil {
     public static String formatLocalDateTime(LocalDateTime localDateTime, String pattern) {
         return localDateTime.format(DateTimeFormatter.ofPattern(pattern));
     }
+
+    public static LocalDateTime parseDate(String date, String pattern) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+        return LocalDateTime.parse(date, formatter);
+    }
 }
