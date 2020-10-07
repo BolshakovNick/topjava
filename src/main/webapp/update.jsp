@@ -7,23 +7,24 @@
 </head>
 <body>
 <form method="post" action="meals" enctype="application/x-www-form-urlencoded">
+    <input type="hidden" name="id" value="${meal.id}">
     <dl>
         <label>
-            <input type="datetime-local" name="DateTime" value="${meal.getDateTime()}">
+            <input type="datetime-local" name="DateTime" value="${meal.dateTime}">
         </label>
     </dl>
     <dl>
         <label>
-            <input type="text" name="Description" size=40 value="${meal.getDescription()}">
+            <input type="text" name="Description" size=40 value="${meal.description}">
         </label>
     </dl>
     <dl>
         <label>
-            <input type="text" name="Calories" size=4 value="${meal.getCalories()}">
+            <input type="number" name="Calories" size=4 value="${meal.calories}">
         </label>
     </dl>
     <button type="submit">Сохранить</button>
-    <button onclick="window.history.back()">Отменить</button>
+    <button type="reset" onclick="window.history.back()">Отменить</button>
 </form>
 </body>
 </html>

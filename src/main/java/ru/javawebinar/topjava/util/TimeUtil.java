@@ -13,8 +13,7 @@ public class TimeUtil {
         return localDateTime.format(DateTimeFormatter.ofPattern(pattern));
     }
 
-    public static LocalDateTime parseDate(String date, String pattern) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
-        return LocalDateTime.parse(date, formatter);
+    public static LocalDateTime parseDate(String date) {
+        return LocalDateTime.parse(date);
     }
 }

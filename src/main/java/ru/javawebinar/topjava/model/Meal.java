@@ -5,21 +5,15 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public class Meal {
+    public static final Meal DEFAULT_MEAL = new Meal(LocalDateTime.now(), "", 0);
+
     private int id;
     private LocalDateTime dateTime;
     private String description;
     private int calories;
 
-    public static final Meal DEFAULT_MEAL;
-
-    static {
-        DEFAULT_MEAL = new Meal(LocalDateTime.now(), "", 0);
-    }
-
     public Meal() {
-        this.dateTime = LocalDateTime.now();
-        this.description = "";
-        this.calories = 0;
+        this(LocalDateTime.of(2000, 1, 1, 0, 0), "", 0);
     }
 
     public Meal(LocalDateTime dateTime, String description, int calories) {

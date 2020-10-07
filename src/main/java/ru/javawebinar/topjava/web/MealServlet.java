@@ -1,13 +1,14 @@
 package ru.javawebinar.topjava.web;
 
 import org.slf4j.Logger;
-import ru.javawebinar.topjava.MealsListInit;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.MealTo;
-import ru.javawebinar.topjava.storage.Storage;
+import ru.javawebinar.topjava.storage.MealStorage;
+import ru.javawebinar.topjava.storage.MealStorageMap;
 import ru.javawebinar.topjava.util.MealsUtil;
 import ru.javawebinar.topjava.util.TimeUtil;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -19,39 +20,46 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 public class MealServlet extends HttpServlet {
     private static final Logger log = getLogger(MealServlet.class);
-    private final Storage storage = MealsListInit.getStorage();
-    private static final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm";
-    private static final String PATTERN_TO_LOCAL_DATE_TIME= "yyyy-MM-dd'T'HH:mm";
+    private static final String dateTimePattern = "yyyy-MM-dd HH:mm";
+    private static final int caloriesLimit = 2000;
+
+    private MealStorage mealStorage;
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        mealStorage = new MealStorageMap();
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String id = request.getParameter("id");
         String action = request.getParameter("action");
         if (action == null) {
-            log.debug("forward to meals");
-            List<MealTo> mealsTo = MealsUtil.getMealsTo(storage.getAll(), MealsListInit.getCaloriesLimit());
-            request.setAttribute("mealsTo", mealsTo);
-            request.setAttribute("pattern", DATE_TIME_PATTERN);
-            request.getRequestDispatcher("/meals.jsp").forward(request, response);
-            return;
+            action = "default";
         }
-
         Meal meal;
         switch (action) {
             case "delete":
-                storage.delete(Integer.parseInt(id));
+                mealStorage.delete(parseId(id));
                 response.sendRedirect("meals");
                 return;
             case "save":
                 meal = Meal.DEFAULT_MEAL;
                 break;
             case "update":
-                meal = storage.get(Integer.parseInt(id));
+                meal = mealStorage.get(parseId(id));
                 break;
             default:
-                throw new IllegalStateException("Unexpected value: " + action);
+                log.debug("forward to meals");
+                List<MealTo> mealsTo = MealsUtil.filteredByStreams(mealStorage.getAll(), caloriesLimit, m -> true);
+                request.setAttribute("mealsTo", mealsTo);
+                request.setAttribute("pattern", dateTimePattern);
+                request.getRequestDispatcher("/meals.jsp").forward(request, response);
+                return;
         }
         request.setAttribute("meal", meal);
+        log.debug("forward to update");
         request.getRequestDispatcher("/update.jsp").forward(request, response);
     }
 
@@ -60,15 +68,19 @@ public class MealServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         String id = request.getParameter("id");
         final boolean isSaving = (id == null);
-        Meal meal = isSaving ? new Meal() : storage.get(Integer.parseInt(id));
-        meal.setDescription(request.getParameter("Description"));
-        meal.setDateTime(TimeUtil.parseDate(request.getParameter("DateTime"), PATTERN_TO_LOCAL_DATE_TIME));
-        meal.setCalories(Integer.parseInt(request.getParameter("Calories")));
+        Meal meal = new Meal(TimeUtil.parseDate(request.getParameter("DateTime")), request.getParameter("Description"),
+                Integer.parseInt(request.getParameter("Calories")));
+
         if (isSaving) {
-            storage.save(meal);
+            mealStorage.create(meal);
         } else {
-            storage.update(meal);
+            meal.setId(parseId(id));
+            mealStorage.update(meal);
         }
         response.sendRedirect("meals");
+    }
+
+    private int parseId(String id) {
+        return Integer.parseInt(id);
     }
 }
