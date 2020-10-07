@@ -11,6 +11,7 @@
 <body>
 <a href="${pageContext.request.contextPath}">Home</a>
 <hr>
+<h1>Meals</h1>
 <a href="meals?action=save">Add Meal</a>
 <table table class="table">
     <tr>

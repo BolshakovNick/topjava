@@ -6,6 +6,9 @@
     <title>Meal</title>
 </head>
 <body>
+<a href="${pageContext.request.contextPath}">Home</a>
+<hr>
+<h1>Edit Meal</h1>
 <form method="post" action="meals" enctype="application/x-www-form-urlencoded">
     <input type="hidden" name="id" value="${meal.id}">
     <dl>
