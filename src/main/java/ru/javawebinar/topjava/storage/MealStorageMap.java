@@ -24,7 +24,7 @@ public class MealStorageMap implements MealStorage {
                 new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 20, 0), "Ужин", 410));
     }
 
-    private final AtomicInteger currentId = new AtomicInteger(0);
+    private final AtomicInteger currentId = new AtomicInteger(1);
     private final Map<Integer, Meal> mealStorage;
 
     public MealStorageMap() {
@@ -38,7 +38,7 @@ public class MealStorageMap implements MealStorage {
     public Meal create(Meal meal) {
         int id = currentId.getAndIncrement();
         meal.setId(id);
-        mealStorage.putIfAbsent(id, meal);
+        mealStorage.put(id, meal);
         return meal;
     }
 
@@ -54,12 +54,7 @@ public class MealStorageMap implements MealStorage {
 
     @Override
     public Meal update(Meal meal) {
-        return mealStorage.computeIfPresent(meal.getId(), (integer, m) -> {
-            m.setDescription(meal.getDescription());
-            m.setDateTime(meal.getDateTime());
-            m.setCalories(meal.getCalories());
-            return m;
-        });
+        return mealStorage.computeIfPresent(meal.getId(), (integer, m) -> meal);
     }
 
     @Override

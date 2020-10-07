@@ -6,7 +6,6 @@ import ru.javawebinar.topjava.model.MealTo;
 import ru.javawebinar.topjava.storage.MealStorage;
 import ru.javawebinar.topjava.storage.MealStorageMap;
 import ru.javawebinar.topjava.util.MealsUtil;
-import ru.javawebinar.topjava.util.TimeUtil;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -14,6 +13,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -64,8 +64,8 @@ public class MealServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         String id = request.getParameter("id");
-        final boolean isSaving = (id == null || id.equals("0") || id.length() ==0);
-        Meal meal = new Meal(TimeUtil.parseDate(request.getParameter("DateTime")), request.getParameter("Description"),
+        final boolean isSaving = (id == null || id.equals("0") || id.isEmpty());
+        Meal meal = new Meal(LocalDateTime.parse(request.getParameter("DateTime")), request.getParameter("Description"),
                 Integer.parseInt(request.getParameter("Calories")));
 
         if (isSaving) {

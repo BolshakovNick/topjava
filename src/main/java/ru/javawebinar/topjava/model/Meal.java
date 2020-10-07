@@ -3,6 +3,7 @@ package ru.javawebinar.topjava.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 
 public class Meal {
 
@@ -12,7 +13,7 @@ public class Meal {
     private int calories;
 
     public Meal() {
-        this(LocalDateTime.of(2000, 1, 1, 0, 0), "", 0);
+        this(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 0);
     }
 
     public Meal(LocalDateTime dateTime, String description, int calories) {
