@@ -13,8 +13,12 @@ import java.util.stream.Collectors;
 
 public class MealsUtil {
     public static void main(String[] args) {
-        List<MealTo> mealsTo = filteredByStreams(new MealStorageMap().getAll(), 2000, meal -> TimeUtil.isBetweenHalfOpen(meal.getTime(), LocalTime.of(7, 0), LocalTime.of(12, 0)));
+        List<MealTo> mealsTo = filteredByStreams(LocalTime.of(7, 0), LocalTime.of(12, 0), new MealStorageMap().getAll(), 2000);
         mealsTo.forEach(System.out::println);
+    }
+
+    public static List<MealTo> filteredByStreams(LocalTime startTime, LocalTime endTime, List<Meal> meals, int caloriesPerDay) {
+        return filteredByStreams(meals, caloriesPerDay, meal -> TimeUtil.isBetweenHalfOpen(meal.getTime(), startTime, endTime));
     }
 
     public static List<MealTo> filteredByStreams(List<Meal> meals, int caloriesPerDay, Predicate<Meal> predicate) {

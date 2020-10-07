@@ -22,8 +22,8 @@
         <th></th>
     </tr>
     <c:forEach items="${mealsTo}" var="mealTo">
-        <tr style=${mealTo.excess ? '"color:red"' : '"color:green"'}>
-            <td>${f:formatLocalDateTime(mealTo.dateTime, pattern)}</td>
+        <tr style="color:${mealTo.excess ? 'red' : 'green'}">
+            <td>${f:formatLocalDateTime(mealTo.dateTime)}</td>
             <td>${mealTo.description}</td>
             <td>${mealTo.calories}</td>
             <td><a href="meals?action=update&id=${mealTo.id}">Update</a></td>
