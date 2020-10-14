@@ -3,11 +3,10 @@ package ru.javawebinar.topjava.service;
 import org.springframework.stereotype.Service;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
-import ru.javawebinar.topjava.util.exception.NotFoundException;
+import ru.javawebinar.topjava.util.ValidationUtil;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.Collection;
+import java.util.List;
 
 @Service
 public class MealService {
@@ -22,30 +21,23 @@ public class MealService {
     }
 
     public void delete(int id, int authUserId) {
-        checkException(!repository.delete(id, authUserId), authUserId, id);
+        ValidationUtil.checkNotFound(repository.delete(id, authUserId), "User " + authUserId + " doesn't have meal with id = " + authUserId);
     }
 
     public Meal get(int id, int authUserId) {
         Meal meal = repository.get(id, authUserId);
-        checkException(meal == null, authUserId, id);
+        ValidationUtil.checkNotFound(meal != null, "User " + authUserId + " doesn't have meal with id = " + authUserId);
         return meal;
     }
-
-    public Collection<Meal> getAll(int authUserId) {
+    public List<Meal> getAll(int authUserId) {
         return repository.getAll(authUserId);
     }
 
+    public List<Meal> getAllFiltered(int authUserId, LocalDate startDate, LocalDate endDate) {
+        return repository.getAllFiltered(authUserId, startDate, endDate);
+    }
+
     public void update(Meal meal, int authUserId) {
-        checkException(repository.save(meal, authUserId) == null, authUserId, meal.getId());
-    }
-
-    private void checkException(boolean expression, int authUserId, int mealId) {
-        if (expression) {
-            throw new NotFoundException("User " + authUserId + " doesn't have meal with id = " + mealId);
-        }
-    }
-
-    public Collection<Meal> getAllFiltered(int authUserId, LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime) {
-        return repository.getAllFiltered(authUserId, startDate, startTime, endDate, endTime);
+        ValidationUtil.checkNotFound(repository.save(meal, authUserId) != null, "User " + authUserId + " doesn't have meal with id = " + authUserId);
     }
 }
