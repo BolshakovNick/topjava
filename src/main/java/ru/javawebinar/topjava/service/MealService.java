@@ -5,6 +5,8 @@ import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Collection;
 
 @Service
@@ -20,12 +22,12 @@ public class MealService {
     }
 
     public void delete(int id, int authUserId) {
-        checkMealDoesNotBelongAuthUser(!repository.delete(id, authUserId), authUserId, id);
+        checkException(!repository.delete(id, authUserId), authUserId, id);
     }
 
     public Meal get(int id, int authUserId) {
         Meal meal = repository.get(id, authUserId);
-        checkMealDoesNotBelongAuthUser(meal, authUserId, id);
+        checkException(meal == null, authUserId, id);
         return meal;
     }
 
@@ -34,16 +36,16 @@ public class MealService {
     }
 
     public void update(Meal meal, int authUserId) {
-        checkMealDoesNotBelongAuthUser(repository.save(meal, authUserId), authUserId, meal.getId());
+        checkException(repository.save(meal, authUserId) == null, authUserId, meal.getId());
     }
 
-    private void checkMealDoesNotBelongAuthUser(Meal meal, int authUserId, int mealId) {
-        checkMealDoesNotBelongAuthUser(meal == null, authUserId, mealId);
-    }
-
-    private void checkMealDoesNotBelongAuthUser(boolean expression, int authUserId, int mealId) {
+    private void checkException(boolean expression, int authUserId, int mealId) {
         if (expression) {
             throw new NotFoundException("User " + authUserId + " doesn't have meal with id = " + mealId);
         }
+    }
+
+    public Collection<Meal> getAllFiltered(int authUserId, LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime) {
+        return repository.getAllFiltered(authUserId, startDate, startTime, endDate, endTime);
     }
 }

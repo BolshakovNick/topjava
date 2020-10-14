@@ -3,16 +3,15 @@ package ru.javawebinar.topjava.repository.inmemory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
-import ru.javawebinar.topjava.model.AbstractNamedEntity;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Repository
 public class InMemoryUserRepository implements UserRepository {
@@ -47,19 +46,17 @@ public class InMemoryUserRepository implements UserRepository {
     @Override
     public List<User> getAll() {
         log.info("getAll");
-        List<User> result = new ArrayList<>(repository.values());
-        result.sort(Comparator.comparing(AbstractNamedEntity::getName));
-        return result;
+        return repository.values().stream()
+                .sorted(Comparator.comparing(User::getName).thenComparing(User::getEmail))
+                .collect(Collectors.toList());
     }
 
     @Override
     public User getByEmail(String email) {
         log.info("getByEmail {}", email);
-        for (User user : repository.values()) {
-            if (email.equals(user.getEmail())) {
-                return user;
-            }
-        }
-        return null;
+        return repository.values().stream()
+                .filter(user -> email.equals(user.getEmail()))
+                .findFirst()
+                .orElse(null);
     }
 }

@@ -5,9 +5,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
+import ru.javawebinar.topjava.util.DateTimeUtil;
 import ru.javawebinar.topjava.util.MealsUtil;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,19 +39,20 @@ public class InMemoryMealRepository implements MealRepository {
             return meal;
         }
         // handle case: update, but not present in storage
-        return repository.computeIfPresent(meal.getId(), (id, oldMeal) -> meal);
+        return meal.getUserId() == userId ? repository.computeIfPresent(meal.getId(), (id, oldMeal) -> meal) : null;
     }
 
     @Override
     public boolean delete(int id, int userId) {
         log.info("delete {}", id);
-        return repository.remove(id) != null;
+        return repository.get(id).getUserId() == userId && repository.remove(id) != null;
     }
 
     @Override
     public Meal get(int id, int userId) throws NotFoundException {
         log.info("get {}", id);
-        return repository.get(id);
+        Meal meal = repository.get(id);
+        return meal.getUserId() == userId ? meal : null;
     }
 
     @Override
@@ -55,7 +60,14 @@ public class InMemoryMealRepository implements MealRepository {
         log.info("getAll");
         return repository.values().stream()
                 .filter(meal -> meal.getUserId() == userId)
-                .sorted((o1, o2) -> o2.getDate().compareTo(o1.getDate()))
+                .sorted(Comparator.comparing(Meal::getDate).reversed())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Meal> getAllFiltered(int authUserId, LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime) {
+        return repository.values().stream()
+                .filter(meal -> DateTimeUtil.isBetweenHalfOpen(meal.getDateTime(), startDate, startTime, endDate, endTime))
                 .collect(Collectors.toList());
     }
 }
